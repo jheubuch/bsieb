@@ -3,14 +3,41 @@ package rte;
 public class DynamicRuntime {
   
   public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
-    MAGIC.inline(0xCC); //TODO remove this line
+    // calculate start address
+    ImageInformation image = (ImageInformation) MAGIC.cast2Struct(MAGIC.imageBase);
+    int startAddress = MAGIC.imageBase + image.imageSize;
+    int rNextAddress = startAddress + relocEntries * MAGIC.ptrSize;
+    int rTypeAddress = rNextAddress + MAGIC.ptrSize;
+    int rRelocEntriesAddress = rTypeAddress + MAGIC.ptrSize;
+    int rScalarSizeAddress = rRelocEntriesAddress + 4;
+
+    // calculate memory requirement and object start address
+    int memSize = scalarSize + relocEntries * MAGIC.ptrSize + 2 * MAGIC.ptrSize + 2 * 4;
+    int objectStartAddress = startAddress + memSize - scalarSize;
+
+    // align memory to 4 bytes
+    int filler = (4 - (memSize % 4)) % 4;
+    memSize += filler;
+
+    // initialize memory with 0
+    for (int i = 0; i < memSize; i += 4)
+      MAGIC.wMem32(startAddress + i, 0);
+
+    // fill object kernel fields
+    MAGIC.wMem32(rNextAddress, 0);
+    // Ref to reloc entries in ClassDesc
+    MAGIC.wMem32(rTypeAddress, MAGIC.addr(type._r_relocEntries));
+    MAGIC.wMem32(rRelocEntriesAddress, relocEntries);
+    MAGIC.wMem32(rScalarSizeAddress, scalarSize);
+
+
     //TODO calculate memory requirements
     //TODO allocate requested memory
     //TODO clear allocated memory
     //TODO calculate object address inside allocated memory
     //TODO fill kernel fields of object
     //TODO return object instead of null
-    return null;
+    return MAGIC.cast2Obj(objectStartAddress);
   }
   
   public static SArray newArray(int length, int arrDim, int entrySize, int stdType,
