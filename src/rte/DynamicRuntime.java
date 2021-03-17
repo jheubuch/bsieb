@@ -1,19 +1,23 @@
 package rte;
 
 public class DynamicRuntime {
+
+  // calculate RAM writing start address
+  private static int startWritingAddress = 0;
+  private static int previousNextBlockAddress = 0;
   
   public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
-    // calculate start address
-    ImageInformation image = (ImageInformation) MAGIC.cast2Struct(MAGIC.imageBase);
-    int startAddress = MAGIC.imageBase + image.imageSize;
-    int rNextAddress = startAddress + relocEntries * MAGIC.ptrSize;
+    if (startWritingAddress == 0)
+      startWritingAddress = ((ImageInformation) MAGIC.cast2Struct(MAGIC.imageBase)).imageSize + MAGIC.imageBase;
+    // calculate addresses
+    int rNextAddress = startWritingAddress + relocEntries * MAGIC.ptrSize;
     int rTypeAddress = rNextAddress + MAGIC.ptrSize;
     int rRelocEntriesAddress = rTypeAddress + MAGIC.ptrSize;
     int rScalarSizeAddress = rRelocEntriesAddress + 4;
 
     // calculate memory requirement and object start address
     int memSize = scalarSize + relocEntries * MAGIC.ptrSize + 2 * MAGIC.ptrSize + 2 * 4;
-    int objectStartAddress = startAddress + memSize - scalarSize;
+    int objectStartAddress = startWritingAddress + memSize - scalarSize;
 
     // align memory to 4 bytes
     int filler = (4 - (memSize % 4)) % 4;
@@ -21,7 +25,7 @@ public class DynamicRuntime {
 
     // initialize memory with 0
     for (int i = 0; i < memSize; i += 4)
-      MAGIC.wMem32(startAddress + i, 0);
+      MAGIC.wMem32(startWritingAddress + i, 0);
 
     // fill object kernel fields
     MAGIC.wMem32(rNextAddress, 0);
@@ -29,6 +33,14 @@ public class DynamicRuntime {
     MAGIC.wMem32(rTypeAddress, MAGIC.addr(type._r_relocEntries));
     MAGIC.wMem32(rRelocEntriesAddress, relocEntries);
     MAGIC.wMem32(rScalarSizeAddress, scalarSize);
+
+    // Connect to previous object --> set next of previous entry to reloc of current
+    if (previousNextBlockAddress != 0)
+      MAGIC.wMem32(previousNextBlockAddress, rRelocEntriesAddress);
+
+    // Store new writing address (placed after last object alignment)
+    startWritingAddress += memSize;
+    previousNextBlockAddress = rNextAddress;
 
 
     //TODO calculate memory requirements
