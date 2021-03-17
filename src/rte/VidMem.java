@@ -1,6 +1,6 @@
-package kernel;
+package rte;
 
 public class VidMem extends STRUCT {
     @SJC(count = 2000)
-    VidChar[] digit;
+    public VidChar[] digit;
 }
