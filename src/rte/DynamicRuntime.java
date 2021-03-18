@@ -4,19 +4,14 @@ public class DynamicRuntime {
 
   // calculate RAM writing start address
   private static int startWritingAddress = 0;
-  private static int previousNextBlockAddress = 0;
+  private static Object previousObject = null;
   
   public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
     if (startWritingAddress == 0)
       startWritingAddress = ((ImageInformation) MAGIC.cast2Struct(MAGIC.imageBase)).imageSize + MAGIC.imageBase;
-    // calculate addresses
-    int rNextAddress = startWritingAddress + relocEntries * MAGIC.ptrSize;
-    int rTypeAddress = rNextAddress + MAGIC.ptrSize;
-    int rRelocEntriesAddress = rTypeAddress + MAGIC.ptrSize;
-    int rScalarSizeAddress = rRelocEntriesAddress + 4;
 
     // calculate memory requirement and object start address
-    int memSize = scalarSize + relocEntries * MAGIC.ptrSize + 2 * MAGIC.ptrSize + 2 * 4;
+    int memSize = scalarSize + relocEntries * MAGIC.ptrSize;
     int objectStartAddress = startWritingAddress + memSize - scalarSize;
 
     // align memory to 4 bytes
@@ -27,20 +22,21 @@ public class DynamicRuntime {
     for (int i = 0; i < memSize; i += 4)
       MAGIC.wMem32(startWritingAddress + i, 0);
 
+    Object object = MAGIC.cast2Obj(objectStartAddress);
+
     // fill object kernel fields
-    MAGIC.wMem32(rNextAddress, 0);
-    // Ref to reloc entries in ClassDesc
-    MAGIC.wMem32(rTypeAddress, MAGIC.addr(type._r_relocEntries));
-    MAGIC.wMem32(rRelocEntriesAddress, relocEntries);
-    MAGIC.wMem32(rScalarSizeAddress, scalarSize);
+    object._r_type = type;
+    object._r_relocEntries = relocEntries;
+    object._r_scalarSize = scalarSize;
 
     // Connect to previous object --> set next of previous entry to reloc of current
-    if (previousNextBlockAddress != 0)
-      MAGIC.wMem32(previousNextBlockAddress, rRelocEntriesAddress);
+    if (previousObject != null)
+      previousObject._r_next = object;
+
+    previousObject = object;
 
     // Store new writing address (placed after last object alignment)
     startWritingAddress += memSize;
-    previousNextBlockAddress = rNextAddress;
 
 
     //TODO calculate memory requirements
@@ -49,7 +45,7 @@ public class DynamicRuntime {
     //TODO calculate object address inside allocated memory
     //TODO fill kernel fields of object
     //TODO return object instead of null
-    return MAGIC.cast2Obj(objectStartAddress);
+    return object;
   }
   
   public static SArray newArray(int length, int arrDim, int entrySize, int stdType,
