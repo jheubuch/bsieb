@@ -10,7 +10,10 @@ public class Kernel {
 
         hund.setWelpe(hund2);
 
-        Output.print(hund.getName(), (byte) 0x03);
-        Output.print(hund.getWelpe().getName(), (byte) 0x05);
+        Output.initScreen();
+        Output.setCursor(2, 2);
+        Output.print(hund.getName());
+        Output.setCursor(15, 15);
+        Output.print(hund.getWelpe().getName());
     }
 }
