@@ -11,14 +11,22 @@ public class Kernel {
         hund.setWelpe(hund2);
 
         Output.initScreen();
-        Output.setColor(1,2);
-        Output.println(4711);
+        Output.setColor(4,0);
+
+        Output.print("PRINTING String: ");
+        Output.println("Thats a string");
+        Output.println();
+
+        Output.print("PRINTING char: ");
+        Output.println('x');
+        Output.println();
+
+        Output.print("PRINTING int: ");
         Output.println(42);
-        Output.println(1810);
-        Output.println(hund.getName());
-        Output.println(hund.getWelpe().getName());
-        Output.println(9);
-        Output.println(-42);
-        Output.println(0);
+        Output.println();
+
+        Output.print("PRINTING long: ");
+        Output.println(4711L);
+        Output.println();
     }
 }

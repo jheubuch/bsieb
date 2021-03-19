@@ -37,6 +37,16 @@ public class Output {
         println();
     }
 
+    // PRINT LONG
+    public static void print(long x) {
+        print(Long.toString(x));
+    }
+
+    public static void println(long x) {
+        print(x);
+        println();
+    }
+
     // PRINT STRING
     public static void print(String output) {
         for (int i = 0; i < output.length(); i++)
