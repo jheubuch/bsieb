@@ -1,5 +1,6 @@
 package kernel;
 
+import kernel.io.Color;
 import kernel.io.Output;
 
 public class Kernel {
@@ -11,7 +12,7 @@ public class Kernel {
         hund.setWelpe(hund2);
 
         Output.initScreen();
-        Output.setColor(4,0);
+        Output.setColor(Color.RED, Color.BLACK);
 
         Output.print("PRINTING String: ");
         Output.println("Thats a string");
