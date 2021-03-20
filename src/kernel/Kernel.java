@@ -27,7 +27,7 @@ public class Kernel {
         Output.println(-42);
         Output.print("PRINTING zero int: ");
         Output.println(0);
-        Output.print("PRINTING long as hex: ");
+        Output.print("PRINTING int as hex: ");
         Output.printHex(4711);
         Output.println();
         Output.println();
