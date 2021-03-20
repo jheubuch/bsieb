@@ -2,6 +2,7 @@ package java.lang;
 
 public class Long {
 
+    private static final int SIZE_BYTES = 8;
     private long value;
 
     public Long(long val) {
@@ -10,6 +11,10 @@ public class Long {
 
     public String toString() {
         return Long.toString(value);
+    }
+
+    public String toHexString() {
+        return Long.toHexString(value);
     }
 
     public static String toString(long value) {
@@ -41,5 +46,16 @@ public class Long {
         }
 
         return new String(digitChars);
+    }
+
+    public static String toHexString(long val) {
+        String[] hexStrings = new String[SIZE_BYTES];
+
+        for (int i = 0; i < SIZE_BYTES; i++) {
+            hexStrings[SIZE_BYTES - i - 1] = Byte.toHexString((byte) val);
+            val = val >>> 8;
+        }
+
+        return String.concat(hexStrings);
     }
 }

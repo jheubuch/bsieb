@@ -1,31 +1,32 @@
 package java.lang;
 
-public class Integer {
-    private static final int SIZE_BYTES = 4;
-    private int value;
+public class Short {
 
-    public Integer(int val) {
+    public static final int SIZE_BYTES = 2;
+    private short value;
+
+    public Short(short val) {
         value = val;
     }
 
     public String toString() {
-        return Integer.toString(value);
+        return Short.toString(value);
     }
 
     public String toHexString() {
-        return Integer.toHexString(value);
+        return Short.toHexString(value);
     }
 
-    public static String toString(int value) {
+    public static String toString(short value) {
         return Long.toString(value);
     }
 
-    public static String toHexString(int val) {
+    public static String toHexString(short val) {
         String[] hexStrings = new String[SIZE_BYTES];
 
         for (int i = 0; i < SIZE_BYTES; i++) {
             hexStrings[SIZE_BYTES - i - 1] = Byte.toHexString((byte) val);
-            val = val >>> 8;
+            val = (short)(val >>> 8);
         }
 
         return String.concat(hexStrings);

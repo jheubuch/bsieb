@@ -37,6 +37,10 @@ public class Output {
         println();
     }
 
+    public static void printHex(int x) {
+        print(Integer.toHexString(x));
+    }
+
     // PRINT LONG
     public static void print(long x) {
         print(Long.toString(x));
@@ -45,6 +49,29 @@ public class Output {
     public static void println(long x) {
         print(x);
         println();
+    }
+
+    public static void printHex(long x) {
+        print(Long.toHexString(x));
+    }
+
+    // PRINT BYTE
+    public static void printHex(byte b) {
+        print(Byte.toHexString(b));
+    }
+
+    // PRINT SHORT
+    public static void print(short s) {
+        print(Short.toString(s));
+    }
+
+    public static void println(short s) {
+        print(s);
+        println();
+    }
+
+    public static void printHex(short s) {
+        print(Short.toHexString(s));
     }
 
     // PRINT STRING
