@@ -1,11 +1,12 @@
 package kernel;
 
-import kernel.io.Color;
-import kernel.io.Output;
+import kernel.io.*;
 
 public class Kernel {
 
     public static void main() {
+        Interrupt.initIdt();
+
         Output.initScreen();
 
         Output.setColor(Color.RED, Color.BLACK);
