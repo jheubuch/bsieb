@@ -1,13 +1,11 @@
 package kernel.interrupt;
 
-import kernel.io.Color;
-import kernel.io.Output;
-
 public class Interrupt {
 
-    public static final int IDT_START = 0x7E00;
+    public static final int IDT_START = 0x7E00, MASTER = 0x20, SLAVE = 0xA0;
 
     public static void initIdt() {
+        initPic();
         addIdtEntry(0x00, MAGIC.mthdOff("InterruptHandlers", "handleInterrupt00"));
         addIdtEntry(0x01, MAGIC.mthdOff("InterruptHandlers", "handleInterrupt01"));
         addIdtEntry(0x02, MAGIC.mthdOff("InterruptHandlers", "handleInterrupt02"));
@@ -61,6 +59,9 @@ public class Interrupt {
         long tmp = (((long) IDT_START) << 16) | (long) ((48 * 8) - 1);
         MAGIC.inline(0x0F, 0x01, 0x5D);
         MAGIC.inlineOffset(1, tmp);
+
+        // release interrupts
+        MAGIC.inline(0xFB);
     }
 
     private static void addIdtEntry(int interruptId, int methodOffset) {
@@ -78,7 +79,25 @@ public class Interrupt {
         MAGIC.wMem16(startWriteAddress + 6, (short) leftOffset);
     }
 
-    public static int getInterruptHandlerReference(int methodOffset) {
+    public static void confirmInterrupt(boolean confirmOnSlave) {
+        MAGIC.wIOs8(MASTER, (byte) 0x20);
+        if (confirmOnSlave)
+            MAGIC.wIOs8(SLAVE, (byte) 0x20);
+    }
+
+    private static void initPic() {
+        programChip(MASTER, 0x20, 0x04);
+        programChip(SLAVE, 0x28, 0x02);
+    }
+
+    private static void programChip(int port, int offset, int icw3) {
+        MAGIC.wIOs8(port++, (byte) 0x11);   // ICW1
+        MAGIC.wIOs8(port, (byte) offset);   // ICW2
+        MAGIC.wIOs8(port, (byte) icw3);     // ICW3
+        MAGIC.wIOs8(port, (byte) 0x01);     // ICW4
+    }
+
+    private static int getInterruptHandlerReference(int methodOffset) {
         int handlerMemAddress = MAGIC.cast2Ref(MAGIC.clssDesc("InterruptHandlers")) + methodOffset;
         int handlerRefAddress = MAGIC.rMem32(handlerMemAddress);
         return handlerRefAddress + MAGIC.getCodeOff();

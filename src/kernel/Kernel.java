@@ -67,7 +67,5 @@ public class Kernel {
         Output.println(wuffi.getName());
         Output.print("The dog's puppy's name is... ");
         Output.println(wuffi.getWelpe().getName());
-
-        while(true);
     }
 }
