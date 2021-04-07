@@ -1,13 +1,14 @@
 package kernel;
 
+import kernel.interrupt.Interrupt;
 import kernel.io.*;
 
 public class Kernel {
 
     public static void main() {
-        Interrupt.initIdt();
-
         Output.initScreen();
+
+        Interrupt.initIdt();
 
         Output.setColor(Color.RED, Color.BLACK);
         Output.setCursor(1, 1);
@@ -67,5 +68,7 @@ public class Kernel {
         Output.println(wuffi.getName());
         Output.print("The dog's puppy's name is... ");
         Output.println(wuffi.getWelpe().getName());
+
+        while(true);
     }
 }

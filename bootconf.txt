@@ -13,6 +13,7 @@ offset 38.l4 value codeaddr
 offset 42.l4 crc 0x82608EDB
 offset 46.l2 value blockcnt
 writebuf
+blowimage
 appendimage
 endsection
 
@@ -28,5 +29,6 @@ offset 38.l4 value codeaddr
 offset 42.l4 crc 0x82608EDB
 offset 46.l2 value blockcnt
 writebuf
+blowimage
 appendimage
 endsection

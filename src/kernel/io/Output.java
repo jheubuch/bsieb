@@ -75,6 +75,14 @@ public class Output {
     }
 
     // PRINT STRING
+    public static void directPrint(int x, int y, String output, int color) {
+        int printPos = x + y * 80;
+        for (int i = 0; i < output.length(); i++) {
+            vidMem.digit[printPos + i].ascii = (byte) output.charAt(i);
+            vidMem.digit[printPos + i].color = (byte) color;
+        }
+    }
+
     public static void print(String output) {
         for (int i = 0; i < output.length(); i++)
             print(output.charAt(i), color);
