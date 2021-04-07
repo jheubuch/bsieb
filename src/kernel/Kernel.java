@@ -7,7 +7,6 @@ public class Kernel {
 
     public static void main() {
         Output.initScreen();
-
         Interrupt.initIdt();
 
         Output.setColor(Color.RED, Color.BLACK);
