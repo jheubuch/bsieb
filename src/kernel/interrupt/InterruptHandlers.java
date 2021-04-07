@@ -168,33 +168,34 @@ public class InterruptHandlers {
 
     @SJC.Interrupt
     public static void handleInterrupt20() {
-        String toPrint = "";
+        // Animation
+        char toPrint = ' ';
         switch (TIMER_CNT) {
             case 0:
-                toPrint = "|";
+                toPrint = '|';
                 TIMER_CNT++;
                 break;
             case 5:
-                toPrint = "/";
+                toPrint = '/';
                 TIMER_CNT = 0;
                 break;
             case 1:
-                toPrint = "/";
+                toPrint = '/';
                 TIMER_CNT++;
                 break;
             case 2:
             case 4:
-                toPrint = "-";
+                toPrint = '-';
                 TIMER_CNT++;
                 break;
             case 3:
-                toPrint = "\\";
+                toPrint = '\\';
                 TIMER_CNT++;
                 break;
             default:
-                toPrint = ".";
+                toPrint = '.';
         }
-        Output.directPrint(79,24, toPrint, Color.GREEN);
+        Output.directPrint(0, 24, toPrint, Color.GREEN);
         Interrupt.confirmInterrupt(false);
     }
 

@@ -100,6 +100,12 @@ public class Output {
     }
 
     // PRINT CHAR
+    public static void directPrint(int x, int y, char c, int color) {
+        int printPos = x + y * 80;
+        vidMem.digit[printPos].ascii = (byte) c;
+        vidMem.digit[printPos ].color = (byte) color;
+    }
+
     public static void print(char c) {
         print(c, color);
     }

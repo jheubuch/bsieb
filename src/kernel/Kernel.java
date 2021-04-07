@@ -2,10 +2,36 @@ package kernel;
 
 import kernel.interrupt.Interrupt;
 import kernel.io.*;
+import rte.BIOS;
 
 public class Kernel {
 
     public static void main() {
+        BIOS.regs.EAX = 0x0013;
+        BIOS.rint(0x10);
+
+        int rechteckNo = 0;
+        for (int i = rechteckNo * 320; i < 320 * rechteckNo + 33 * 320; i++)
+            MAGIC.wMem8(0xA0000 + i + 320, (byte)41);
+        rechteckNo += 33;
+        for (int i = rechteckNo * 320; i < 320 * rechteckNo + 33 * 320; i++)
+            MAGIC.wMem8(0xA0000 + i + 320, (byte)42);;
+        rechteckNo += 33;
+        for (int i = rechteckNo * 320; i < 320 * rechteckNo + 33 * 320; i++)
+            MAGIC.wMem8(0xA0000 + i + 320, (byte)43);;
+        rechteckNo += 33;
+        for (int i = rechteckNo * 320; i < 320 * rechteckNo + 33 * 320; i++)
+            MAGIC.wMem8(0xA0000 + i + 320, (byte)120);;
+        rechteckNo += 33;
+        for (int i = rechteckNo * 320; i < 320 * rechteckNo + 33 * 320; i++)
+            MAGIC.wMem8(0xA0000 + i + 320, (byte)0x01);;
+        rechteckNo += 33;
+        for (int i = rechteckNo * 320; i < 320 * rechteckNo + 33 * 320; i++)
+            MAGIC.wMem8(0xA0000 + i + 320, (byte)0x6B);
+
+        BIOS.regs.EAX = 0x0003;
+        BIOS.rint(0x10);
+
         Output.initScreen();
         Interrupt.initIdt();
 
