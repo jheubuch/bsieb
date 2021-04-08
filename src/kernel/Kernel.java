@@ -7,9 +7,18 @@ import rte.BIOS;
 public class Kernel {
 
     public static void main() {
-        BIOS.regs.EAX = 0x0013;
-        BIOS.rint(0x10);
+        Output.initScreen();
+        Interrupt.initIdt();
 
+        BIOS.switchToGraphicMode();
+        drawRainbowFlag();
+        Interrupt.wait(45);
+        BIOS.switchToTextMode();
+
+        printTestFunctions();
+    }
+
+    private static void drawRainbowFlag() {
         int rechteckNo = 0;
         for (int i = rechteckNo * 320; i < 320 * rechteckNo + 33 * 320; i++)
             MAGIC.wMem8(0xA0000 + i + 320, (byte)41);
@@ -28,13 +37,9 @@ public class Kernel {
         rechteckNo += 33;
         for (int i = rechteckNo * 320; i < 320 * rechteckNo + 33 * 320; i++)
             MAGIC.wMem8(0xA0000 + i + 320, (byte)0x6B);
+    }
 
-        BIOS.regs.EAX = 0x0003;
-        BIOS.rint(0x10);
-
-        Output.initScreen();
-        Interrupt.initIdt();
-
+    private static void printTestFunctions() {
         Output.setColor(Color.RED, Color.BLACK);
         Output.setCursor(1, 1);
         Output.print("PRINTING String: ");

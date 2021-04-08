@@ -79,6 +79,18 @@ public class Interrupt {
         MAGIC.wMem16(startWriteAddress + 6, (short) leftOffset);
     }
 
+    @SJC.Inline
+    public static void wait(int timerUnits) {
+        if (timerUnits <= 0)
+            return;
+
+        InterruptHandlers.TIME_TO_WAIT = timerUnits;
+        InterruptHandlers.TIME_WAITED = 0;
+
+        while (InterruptHandlers.TIME_TO_WAIT != -1);
+    }
+
+    @SJC.Inline
     public static void confirmInterrupt(boolean confirmOnSlave) {
         MAGIC.wIOs8(MASTER, (byte) 0x20);
         if (confirmOnSlave)

@@ -27,7 +27,7 @@ public class BIOS {
   private static boolean initDone;
   
   //-------------------------------------------------------- call BIOS-IRQ ------------------------------------
-  public static void rint(int inter) {
+  private static void rint(int inter) {
     int addr=BIOS_MEMORY+8;
     
     if (!initDone) { //initialize 16 bit code
@@ -193,5 +193,17 @@ public class BIOS {
     Interrupt.initIdt();
 
     MAGIC.inline(0x9D); //popf
+  }
+
+  @SJC.Inline
+  public static void switchToGraphicMode() {
+    regs.EAX = 0x0013;
+    rint(0x10);
+  }
+
+  @SJC.Inline
+  public static void switchToTextMode() {
+    regs.EAX = 0x0003;
+    rint(0x10);
   }
 }

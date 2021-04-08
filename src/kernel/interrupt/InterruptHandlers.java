@@ -5,6 +5,8 @@ import kernel.io.Output;
 
 public class InterruptHandlers {
     static int TIMER_CNT = 0;
+    static int TIME_TO_WAIT = -1;
+    static int TIME_WAITED = -1;
 
     @SJC.Interrupt
     public static void handleInterrupt00() {
@@ -168,6 +170,15 @@ public class InterruptHandlers {
 
     @SJC.Interrupt
     public static void handleInterrupt20() {
+        // count waiting variable if waiting is needed
+        if (TIME_TO_WAIT != -1) {
+            TIME_WAITED++;
+            if (TIME_TO_WAIT == TIME_WAITED) {
+                TIME_WAITED = -1;
+                TIME_TO_WAIT = -1;
+            }
+        }
+
         // Animation
         char toPrint = ' ';
         switch (TIMER_CNT) {
