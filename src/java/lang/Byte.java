@@ -23,7 +23,7 @@ public class Byte {
         return new String(hexChars);
     }
 
-    private static char toHex(byte val) {
+    public static char toHex(byte val) {
         if (val >= (byte) 0 && val <= (byte) 9)
             return (char)(val + 48);
         else if (val >= (byte) 10 && val <= (byte) 15)

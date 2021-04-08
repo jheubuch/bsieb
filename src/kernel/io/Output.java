@@ -59,6 +59,17 @@ public class Output {
     public static void printHex(byte b) {
         print(Byte.toHexString(b));
     }
+    public static void directPrintHex(int x, int y, byte b, int color) {
+        byte mask = (byte) 0x0F;
+        byte leftNibble = (byte)((b >>> 4) & mask);
+        byte rightNibble = (byte)(b & mask);
+
+        int printPos = x + y * 80;
+        vidMem.digit[printPos].ascii = (byte) Byte.toHex(leftNibble);
+        vidMem.digit[printPos++].color = (byte) color;
+        vidMem.digit[printPos].ascii = (byte) Byte.toHex(rightNibble);
+        vidMem.digit[printPos].color = (byte) color;
+    }
 
     // PRINT SHORT
     public static void print(short s) {

@@ -1,7 +1,6 @@
 package kernel.interrupt;
 
-import kernel.io.Color;
-import kernel.io.Output;
+import kernel.io.*;
 
 public class InterruptHandlers {
     static int TIMER_CNT = 0;
@@ -212,7 +211,9 @@ public class InterruptHandlers {
 
     @SJC.Interrupt
     public static void handleInterrupt21() {
-        Output.directPrint(0, 0, "IR21 - IRQ1: Keyboard", Color.RED);
+        byte code = MAGIC.rIOs8(0x60);
+        Output.directPrintHex(0, 0, code, Color.GREEN);
+        InputBufferManager.writeToBuffer(code);
         Interrupt.confirmInterrupt(false);
     }
 
