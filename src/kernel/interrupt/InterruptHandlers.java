@@ -1,6 +1,7 @@
 package kernel.interrupt;
 
 import kernel.io.*;
+import kernel.memory.keyboard.InputBufferManager;
 
 public class InterruptHandlers {
     static int TIMER_CNT = 0;
@@ -212,7 +213,6 @@ public class InterruptHandlers {
     @SJC.Interrupt
     public static void handleInterrupt21() {
         byte code = MAGIC.rIOs8(0x60);
-        Output.directPrintHex(0, 0, code, Color.GREEN);
         InputBufferManager.writeToBuffer(code);
         Interrupt.confirmInterrupt(false);
     }

@@ -12,10 +12,10 @@ public class Kernel {
 
         BIOS.switchToGraphicMode();
         drawRainbowFlag();
-        Interrupt.wait(25);
+        Interrupt.wait(20);
         BIOS.switchToTextMode();
 
-        printTestFunctions();
+        Input.printKeyStrokes();
     }
 
     private static void drawRainbowFlag() {
