@@ -50,6 +50,9 @@ public class Input {
             case KeyCode.ALT:
                 altPressed = isMake;
                 break;
+            case KeyCode.D:
+                if (isMake && ctrlPressed && altPressed) // CTRL + ALT + D
+                    MAGIC.inline(0xCC);
         }
 
         String ctrlPressedString;
@@ -68,6 +71,7 @@ public class Input {
         Output.directPrint(7, 24, altPressedString, Color.TURQOISE);
     }
 
+    @SJC.Inline
     private static int evaluatePressedKey(int pressedKey) {
         Output.directPrintHex(76, 24, (byte)(pressedKey & 0x7F), Color.BLUE);
         switch (pressedKey & 0x7F) {
