@@ -1,8 +1,10 @@
 package kernel.interrupt;
 
+import kernel.GlobalAddresses;
+
 public class Interrupt {
 
-    public static final int IDT_START = 0x7E00, MASTER = 0x20, SLAVE = 0xA0;
+    public static final int MASTER = 0x20, SLAVE = 0xA0;
 
     public static void initIdt() {
         initPic();
@@ -56,7 +58,7 @@ public class Interrupt {
         addIdtEntry(0x2F, MAGIC.mthdOff("InterruptHandlers", "handleInterrupt2F"));
 
         // set LIDT register
-        long tmp = (((long) IDT_START) << 16) | (long) ((48 * 8) - 1);
+        long tmp = (((long) GlobalAddresses.IDT_START) << 16) | (long) ((48 * 8) - 1);
         MAGIC.inline(0x0F, 0x01, 0x5D);
         MAGIC.inlineOffset(1, tmp);
 
@@ -67,7 +69,7 @@ public class Interrupt {
     private static void addIdtEntry(int interruptId, int methodOffset) {
         int handlerReference = getInterruptHandlerReference(methodOffset);
 
-        int startWriteAddress = IDT_START + interruptId * 8;
+        int startWriteAddress = GlobalAddresses.IDT_START + interruptId * 8;
         int leftOffset = (handlerReference & 0xFFFF0000) >>> 16;
         int rightOffset = handlerReference & 0xFFFF;
         int segmentSelector = 8;

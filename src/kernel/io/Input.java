@@ -31,6 +31,7 @@ public class Input {
         return shiftPressed || capsActive;
     }
 
+    @SJC.Inline
     private static void evaluateControlSequence(int keyCode, boolean isMake) {
         switch (keyCode) {
             case KeyCode.CAPS:
@@ -53,6 +54,7 @@ public class Input {
             case KeyCode.D:
                 if (isMake && ctrlPressed && altPressed) // CTRL + ALT + D
                     MAGIC.inline(0xCC);
+                break;
         }
 
         String ctrlPressedString;

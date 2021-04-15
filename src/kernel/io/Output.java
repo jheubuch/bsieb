@@ -18,8 +18,10 @@ public class Output {
     }
 
     public static void backspace() {
-        actualVidPos--;
-        vidMem.digit[actualVidPos].ascii = ' ';
+        if (actualVidPos != 0) {
+            actualVidPos--;
+            vidMem.digit[actualVidPos].ascii = ' ';
+        }
     }
 
     public static void initScreen() {

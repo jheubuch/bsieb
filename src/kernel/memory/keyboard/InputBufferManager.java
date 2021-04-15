@@ -1,10 +1,9 @@
 package kernel.memory.keyboard;
 
-import kernel.io.Color;
-import kernel.io.Output;
+import kernel.GlobalAddresses;
 
 public class InputBufferManager {
-    private static InputBuffer buffer = (InputBuffer) MAGIC.cast2Struct(0x08000);
+    private static InputBuffer buffer = (InputBuffer) MAGIC.cast2Struct(GlobalAddresses.INPUT_BUFFER_START);
     public static final int BUFFER_SIZE = 128;
     public static int writeIndex = 0;
     public static int readIndex = 0;
