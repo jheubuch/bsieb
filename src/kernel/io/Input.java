@@ -5,7 +5,7 @@ import kernel.memory.keyboard.InputBufferManager;
 
 
 public class Input {
-    public static boolean capsActive, shiftPressed = false;
+    public static boolean capsActive, shiftPressed, ctrlPressed, altPressed = false;
 
     public static void printKeyStrokes() {
         while (true) {
@@ -19,7 +19,7 @@ public class Input {
                 boolean isMakeCode = (readCodes[i] >>> 7) == 0;
                 int keyCode = evaluatePressedKey(readCodes[i]);
 
-                if (keyCode != 0 && keyCode < 255 && isMakeCode)
+                if (keyCode != 0 && keyCode < 255 && isMakeCode && !ctrlPressed && !altPressed)
                     Output.print((char)keyCode);
                 else
                     evaluateControlSequence(keyCode, isMakeCode);
@@ -44,7 +44,28 @@ public class Input {
             case KeyCode.SHIFT:
                 shiftPressed = isMake;
                 break;
+            case KeyCode.CTRL:
+                ctrlPressed = isMake;
+                break;
+            case KeyCode.ALT:
+                altPressed = isMake;
+                break;
         }
+
+        String ctrlPressedString;
+        if (ctrlPressed)
+            ctrlPressedString = "[CTRL]";
+        else
+            ctrlPressedString = "[----]";
+
+        String altPressedString;
+        if (altPressed)
+            altPressedString = "[ALT]";
+        else
+            altPressedString = "[---]";
+
+        Output.directPrint(1, 24, ctrlPressedString, Color.TURQOISE);
+        Output.directPrint(7, 24, altPressedString, Color.TURQOISE);
     }
 
     private static int evaluatePressedKey(int pressedKey) {
@@ -114,6 +135,8 @@ public class Input {
                 if (isUpper())
                     return KeyCode.P - 32;
                 return KeyCode.P;
+            case 29:
+                return KeyCode.CTRL;
             case 30:
                 if (isUpper())
                     return KeyCode.A - 32;
@@ -180,6 +203,8 @@ public class Input {
                 if (isUpper())
                     return KeyCode.M - 32;
                 return KeyCode.M;
+            case 56:
+                return KeyCode.ALT;
             case 57:
                 return KeyCode.SPACE;
             case 58:
