@@ -5,6 +5,7 @@ import kernel.io.Output;
 
 public class InputBufferManager {
     private static InputBuffer buffer = (InputBuffer) MAGIC.cast2Struct(0x08000);
+    public static final int BUFFER_SIZE = 128;
     public static int writeIndex = 0;
     public static int readIndex = 0;
     public static int bytesToRead = 0;
@@ -12,6 +13,9 @@ public class InputBufferManager {
 
     public static void writeToBuffer(byte code) {
         while (!reserveAccessPermission());
+
+        if (bytesToRead == 0)
+            buffer.keyCodes[writeIndex] = 0;
 
         buffer.keyCodes[writeIndex] <<= 8;
         buffer.keyCodes[writeIndex] += code;
@@ -36,7 +40,7 @@ public class InputBufferManager {
 
         int count = writeIndex - readIndex;
         if (count < 0)
-            count += 128;
+            count += BUFFER_SIZE;
         else if (count == 0) {
             releaseAccessPermission();
             return null;
@@ -65,7 +69,7 @@ public class InputBufferManager {
     }
 
     private static void completeWriteProgress() {
-        if (writeIndex == 127)
+        if (writeIndex == (BUFFER_SIZE - 1))
             writeIndex = 0;
         else
             writeIndex++;
@@ -73,7 +77,7 @@ public class InputBufferManager {
     }
 
     private static void incrementReadIndex() {
-        if (readIndex == 127)
+        if (readIndex == (BUFFER_SIZE - 1))
             readIndex = 0;
         else
             readIndex++;

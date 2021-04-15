@@ -17,6 +17,11 @@ public class Output {
         actualVidPos = x + y * 80;
     }
 
+    public static void backspace() {
+        actualVidPos--;
+        vidMem.digit[actualVidPos].ascii = ' ';
+    }
+
     public static void initScreen() {
         actualVidPos = 0;
         for (int i = 0; i < 2000; i++)
