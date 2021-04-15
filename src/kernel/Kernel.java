@@ -3,6 +3,8 @@ package kernel;
 import kernel.interrupt.Interrupt;
 import kernel.io.*;
 import kernel.memory.map.MemoryMap;
+import kernel.pci.PCI;
+import kernel.pci.PCIDevice;
 import rte.BIOS;
 
 public class Kernel {
@@ -16,8 +18,33 @@ public class Kernel {
         Interrupt.wait(10);
         BIOS.switchToTextMode();
 
+        Output.println("Memory map:");
         getSystemMemoryMap();
+        Output.println("PCI Bus scan:");
+        scanPCIBus();
         Input.printKeyStrokes();
+    }
+
+    private static void scanPCIBus() {
+        for (int i = 0; i < 256; i++)
+            for (int j = 0; j < 32; j++)
+                for (int k = 0; k < 8; k++) {
+                    PCIDevice pci = PCI.scanAt(i, j, k);
+                    if (pci == null)
+                        continue;
+                    Output.printHex(pci.baseClassCode);
+                    Output.print('|');
+                    Output.printHex(pci.busNo);
+                    Output.print('|');
+                    Output.printHex(pci.deviceNo);
+                    Output.print('|');
+                    Output.printHex(pci.functionNo);
+                    Output.print('|');
+                    Output.printHex(pci.deviceId);
+                    Output.print('|');
+                    Output.printHex(pci.vendorId);
+                    Output.println();
+                }
     }
 
     private static void getSystemMemoryMap() {
