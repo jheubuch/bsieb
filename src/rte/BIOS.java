@@ -1,6 +1,8 @@
 package rte;
 
+import kernel.GlobalAddresses;
 import kernel.interrupt.Interrupt;
+import kernel.memory.map.MemoryMap;
 
 public class BIOS {
   private final static int BIOS_MEMORY = 0x60000;
@@ -205,5 +207,22 @@ public class BIOS {
   public static void switchToTextMode() {
     regs.EAX = 0x0003;
     rint(0x10);
+  }
+
+  @SJC.Inline
+  public static MemoryMap getSystemMemoryMap(int continuationIndex) {
+    regs.EAX = 0x0000E820;
+    regs.EDX = 0x534D4150;
+    regs.EBX = continuationIndex;
+    regs.ECX = 20;
+    regs.EDI = GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START;
+    rint(0x15);
+    MemoryMap map = new MemoryMap(
+            MAGIC.rMem64(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START),
+            MAGIC.rMem64(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START + 8),
+            MAGIC.rMem32(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START + 16)
+    );
+
+    return map;
   }
 }

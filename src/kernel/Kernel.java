@@ -2,6 +2,7 @@ package kernel;
 
 import kernel.interrupt.Interrupt;
 import kernel.io.*;
+import kernel.memory.map.MemoryMap;
 import rte.BIOS;
 
 public class Kernel {
@@ -12,10 +13,27 @@ public class Kernel {
 
         BIOS.switchToGraphicMode();
         drawRainbowFlag();
-        Interrupt.wait(20);
+        Interrupt.wait(10);
         BIOS.switchToTextMode();
 
+        getSystemMemoryMap();
         Input.printKeyStrokes();
+    }
+
+    private static void getSystemMemoryMap() {
+        int continuationIndex = 0;
+        do {
+            MemoryMap map = BIOS.getSystemMemoryMap(continuationIndex);
+
+            Output.printHex(map.baseAddress);
+            Output.print('|');
+            Output.printHex(map.length);
+            Output.print('|');
+            Output.printHex(map.type);
+            Output.println();
+
+            continuationIndex = BIOS.regs.EBX;
+        } while (continuationIndex != 0);
     }
 
     private static void drawRainbowFlag() {
