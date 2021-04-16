@@ -17,6 +17,38 @@ public class Output {
         actualVidPos = x + y * 80;
     }
 
+    @SJC.Inline
+    public static void cursorUp() {
+        if (actualVidPos <= 80)
+            actualVidPos = 0;
+        else
+            actualVidPos -= 80;
+    }
+
+    @SJC.Inline
+    public static void cursorDown() {
+        if (actualVidPos >= ((25 * 80) - 81))
+            actualVidPos = (25 * 80) - 1;
+        else
+            actualVidPos += 80;
+    }
+
+    @SJC.Inline
+    public static void cursorLeft() {
+        if (actualVidPos == 0)
+            actualVidPos = (25 * 80) - 1;
+        else
+            actualVidPos--;
+    }
+
+    @SJC.Inline
+    public static void cursorRight() {
+        if (actualVidPos == (25 * 80) - 1)
+            actualVidPos = 0;
+        else
+            actualVidPos++;
+    }
+
     public static void backspace() {
         if (actualVidPos != 0) {
             actualVidPos--;
@@ -25,6 +57,10 @@ public class Output {
     }
 
     public static void initScreen() {
+        // disable cursor
+        MAGIC.wIOs8(0x03D4, (byte)0x0A);
+        MAGIC.wIOs8(0x03D5, (byte)0x20);
+
         actualVidPos = 0;
         for (int i = 0; i < 2000; i++)
             print(' ', (byte) 0x01);

@@ -42,6 +42,10 @@ public class Input {
                 if (isMake)
                     Output.backspace();
                 break;
+            case KeyCode.ENTER:
+                if (isMake)
+                    Output.println();
+                break;
             case KeyCode.SHIFT:
                 shiftPressed = isMake;
                 break;
@@ -50,6 +54,22 @@ public class Input {
                 break;
             case KeyCode.ALT:
                 altPressed = isMake;
+                break;
+            case KeyCode.CURSOR_DOWN:
+                if (isMake)
+                    Output.cursorDown();
+                break;
+            case KeyCode.CURSOR_UP:
+                if (isMake)
+                    Output.cursorUp();
+                break;
+            case KeyCode.CURSOR_LEFT:
+                if (isMake)
+                    Output.cursorLeft();
+                break;
+            case KeyCode.CURSOR_RIGHT:
+                if (isMake)
+                    Output.cursorRight();
                 break;
             case KeyCode.D:
                 if (isMake && ctrlPressed && altPressed) // CTRL + ALT + D
@@ -78,7 +98,7 @@ public class Input {
         Output.directPrintHex(76, 24, (byte)(pressedKey & 0x7F), Color.BLUE);
         switch (pressedKey & 0x7F) {
             case 1: // ESC
-                break;
+                return KeyCode.ESC;
             case 2:
                 return KeyCode.NR_1;
             case 3:
@@ -101,6 +121,8 @@ public class Input {
                 return KeyCode.NR_0;
             case 14:
                 return KeyCode.BACKSPACE;
+            case 15:
+                return KeyCode.TAB;
             case 16:
                 if (isUpper())
                     return KeyCode.Q - 32;
@@ -141,6 +163,8 @@ public class Input {
                 if (isUpper())
                     return KeyCode.P - 32;
                 return KeyCode.P;
+            case 28:
+                return KeyCode.ENTER;
             case 29:
                 return KeyCode.CTRL;
             case 30:
@@ -215,10 +239,41 @@ public class Input {
                 return KeyCode.SPACE;
             case 58:
                 return KeyCode.CAPS;
+            case 59:
+                return KeyCode.F1;
+            case 60:
+                return KeyCode.F2;
+            case 61:
+                return KeyCode.F3;
+            case 62:
+                return KeyCode.F4;
+            case 63:
+                return KeyCode.F5;
+            case 64:
+                return KeyCode.F6;
+            case 65:
+                return KeyCode.F7;
+            case 66:
+                return KeyCode.F8;
+            case 67:
+                return KeyCode.F9;
+            case 68:
+                return KeyCode.F10;
+            case 72:
+                return KeyCode.CURSOR_UP;
+            case 75:
+                return KeyCode.CURSOR_LEFT;
+            case 77:
+                return KeyCode.CURSOR_RIGHT;
+            case 80:
+                return KeyCode.CURSOR_DOWN;
+            case 87:
+                return KeyCode.F11;
+            case 88:
+                return KeyCode.F12;
             default:
                 Output.directPrintHex(78, 24, (byte) pressedKey, Color.RED);
                 return 0;
         }
-        return 0;
     }
 }

@@ -8,6 +8,24 @@ public class KeyCode {
     public static final int CAPS = 603;
     public static final int TAB = 604;
     public static final int BACKSPACE = 605;
+    public static final int ENTER = 606;
+    public static final int ESC = 607;
+    public static final int F1 = 610;
+    public static final int F2 = 611;
+    public static final int F3 = 612;
+    public static final int F4 = 613;
+    public static final int F5 = 614;
+    public static final int F6 = 615;
+    public static final int F7 = 616;
+    public static final int F8 = 617;
+    public static final int F9 = 618;
+    public static final int F10 = 619;
+    public static final int F11 = 620;
+    public static final int F12 = 621;
+    public static final int CURSOR_LEFT = 622;
+    public static final int CURSOR_RIGHT = 623;
+    public static final int CURSOR_UP = 624;
+    public static final int CURSOR_DOWN = 625;
 
     // Numbers
     public static final int NR_0 = '0';

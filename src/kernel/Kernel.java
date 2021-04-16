@@ -10,7 +10,6 @@ import rte.BIOS;
 public class Kernel {
 
     public static void main() {
-        Output.initScreen();
         Interrupt.initIdt();
 
         BIOS.switchToGraphicMode();
@@ -18,6 +17,7 @@ public class Kernel {
         Interrupt.wait(10);
         BIOS.switchToTextMode();
 
+        Output.initScreen();
         Output.println("Memory map:");
         getSystemMemoryMap();
         Output.println("PCI Bus scan:");
