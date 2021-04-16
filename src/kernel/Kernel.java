@@ -26,6 +26,8 @@ public class Kernel {
     }
 
     private static void scanPCIBus() {
+        Output.println("Base Cl.|Bus No. |Dev. No.|Fun. No.|Dev. ID |Vend. ID");
+        Output.println("======================================================");
         for (int i = 0; i < 256; i++)
             for (int j = 0; j < 32; j++)
                 for (int k = 0; k < 8; k++) {
@@ -48,19 +50,28 @@ public class Kernel {
     }
 
     private static void getSystemMemoryMap() {
+        Output.print('|');
+        Output.print("Start address   ");
+        Output.print('|');
+        Output.print("Length          ");
+        Output.println('|');
+        Output.println("===================================");
         int continuationIndex = 0;
         do {
             MemoryMap map = BIOS.getSystemMemoryMap(continuationIndex);
+            continuationIndex = BIOS.regs.EBX;
 
+            if (map.type != 1)
+                continue;
+
+            Output.print('|');
             Output.printHex(map.baseAddress);
             Output.print('|');
             Output.printHex(map.length);
-            Output.print('|');
-            Output.printHex(map.type);
-            Output.println();
-
-            continuationIndex = BIOS.regs.EBX;
+            Output.println('|');
         } while (continuationIndex != 0);
+        Output.println("===================================");
+        Output.println();
     }
 
     private static void drawRainbowFlag() {
