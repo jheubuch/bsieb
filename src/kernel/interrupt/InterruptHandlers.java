@@ -26,6 +26,7 @@ public class InterruptHandlers {
     @SJC.Interrupt
     public static void handleInterrupt03() {
         Output.directPrint(0, 0, "IR03: Breakpoint!", Color.RED);
+        while(true);
     }
 
     @SJC.Interrupt
