@@ -1,6 +1,5 @@
-package rte;
+package kernel;
 
-import kernel.GlobalAddresses;
 import kernel.interrupt.Interrupt;
 import kernel.memory.map.MemoryMap;
 

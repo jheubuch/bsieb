@@ -5,7 +5,6 @@ import kernel.io.*;
 import kernel.memory.map.MemoryMap;
 import kernel.pci.PCI;
 import kernel.pci.PCIDevice;
-import rte.BIOS;
 
 public class Kernel {
 
@@ -14,7 +13,7 @@ public class Kernel {
 
         BIOS.switchToGraphicMode();
         drawRainbowFlag();
-        Interrupt.wait(10);
+        Interrupt.wait(5);
         BIOS.switchToTextMode();
 
         Output.initScreen();
@@ -143,16 +142,5 @@ public class Kernel {
         Output.printHex((short)488);
         Output.println();
         Output.println();
-
-        Output.setColor(Color.GREY, Color.BLACK);
-        Output.println("CREATING Dog with puppy... ");
-        Output.println();
-        Hund wuffi = new Hund("Wuffi");
-        Hund cookie = new Hund("Cookie");
-        wuffi.setWelpe(cookie);
-        Output.print("The dog's name is... ");
-        Output.println(wuffi.getName());
-        Output.print("The dog's puppy's name is... ");
-        Output.println(wuffi.getWelpe().getName());
     }
 }

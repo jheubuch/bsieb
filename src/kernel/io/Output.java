@@ -1,7 +1,5 @@
 package kernel.io;
 
-import rte.VidMem;
-
 public class Output {
 
     private static VidMem vidMem = (VidMem) MAGIC.cast2Struct(0xB8000);

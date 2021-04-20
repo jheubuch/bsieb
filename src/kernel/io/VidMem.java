@@ -1,4 +1,4 @@
-package rte;
+package kernel.io;
 
 public class VidMem extends STRUCT {
     @SJC(count = 2000)
