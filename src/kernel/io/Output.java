@@ -65,7 +65,11 @@ public class Output {
     }
 
     public static void setColor(int foreground, int background) {
-        color = (byte)(background * 16 + foreground);
+        int clr = background;
+        clr <<= 4;
+        clr |= foreground;
+        clr &= 0x77;
+        color = (byte) clr;
     }
 
     // PRINT INT
@@ -79,7 +83,8 @@ public class Output {
     }
 
     public static void printHex(int x) {
-        print(Integer.toHexString(x));
+        for (int j = 0; j < 4; j++)
+            printHex((byte)((x >>> (24 - 8 * j)) & 0xFF));
     }
 
     // PRINT LONG
@@ -98,7 +103,12 @@ public class Output {
 
     // PRINT BYTE
     public static void printHex(byte b) {
-        print(Byte.toHexString(b));
+        byte mask = (byte) 0x0F;
+        byte leftNibble = (byte)((b >>> 4) & mask);
+        byte rightNibble = (byte)(b & mask);
+
+        print(Byte.toHex(leftNibble));
+        print(Byte.toHex(rightNibble));
     }
     public static void directPrintHex(int x, int y, byte b, int color) {
         byte mask = (byte) 0x0F;
