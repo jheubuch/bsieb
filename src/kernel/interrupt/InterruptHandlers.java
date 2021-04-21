@@ -25,7 +25,12 @@ public class InterruptHandlers {
 
     @SJC.Interrupt
     public static void handleInterrupt03() {
-        Output.directPrint(0, 0, "IR03: Breakpoint!", Color.RED);
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        // Show error screen
+        ErrorScreen.show(ebp);
+        // Stop machine
         while(true);
     }
 

@@ -72,7 +72,7 @@ public class Input {
                     Output.cursorRight();
                 break;
             case KeyCode.D:
-                if (isMake && ctrlPressed && altPressed) // CTRL + ALT + D
+                if (isMake && ctrlPressed)
                     MAGIC.inline(0xCC);
                 break;
         }
