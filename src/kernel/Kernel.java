@@ -13,7 +13,7 @@ public class Kernel {
 
         BIOS.switchToGraphicMode();
         drawRainbowFlag();
-        Interrupt.wait(5);
+        Interrupt.wait(15);
         BIOS.switchToTextMode();
 
         Output.initScreen();

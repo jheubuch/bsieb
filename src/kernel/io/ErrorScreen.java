@@ -4,7 +4,7 @@ public class ErrorScreen {
     public static void show(int ebp) {
         redScreen();
 
-        Output.println("Oooops, an error occurred!");
+        Output.println("Oy, a breakpoint was hit!");
         Output.println();
         Output.println("Stackframe:");
         Output.println();
@@ -29,7 +29,9 @@ public class ErrorScreen {
             ebp = MAGIC.rMem32(ebp);
             eip = MAGIC.rMem32(ebp + 4);
             depth++;
-        } while (ebp <= 0x9BFFC);
+        } while (ebp >= 0x70000 && ebp <= 0x9FFFF);
+        Output.setCursor(0, 24);
+        Output.print("Restart your system to go on!");
     }
 
     @SJC.Inline

@@ -71,6 +71,12 @@ public class Input {
                 if (isMake)
                     Output.cursorRight();
                 break;
+            case KeyCode.C:
+                if (isMake && ctrlPressed && altPressed) {
+                    Output.setCursor(0, 0);
+                    Output.initScreen();
+                }
+                break;
             case KeyCode.D:
                 if (isMake && ctrlPressed)
                     MAGIC.inline(0xCC);
