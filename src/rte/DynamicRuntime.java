@@ -1,22 +1,80 @@
 package rte;
 
+import kernel.BIOS;
+import kernel.GlobalAddresses;
+
 public class DynamicRuntime {
 
   // calculate RAM writing start address
-  private static int startWritingAddress = 0;
   private static Object previousObject = null;
+  private static ImageInformation imageInformation = (ImageInformation) MAGIC.cast2Struct(MAGIC.imageBase);
+  private static EmptyObject firstEmptyObject = null;
+
+  public static void initializeEmptyObjects() {
+    // init initial empty objects by using SMAP
+    int continuationIndex = 0;
+    do {
+      BIOS.systemMemoryMap(continuationIndex);
+      continuationIndex = BIOS.regs.EBX;
+
+      int type = MAGIC.rMem32(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START + 16);
+      if (type != 0x01)
+        continue;
+
+      int baseAddress = (int)MAGIC.rMem64(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START);
+      long length = MAGIC.rMem64(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START + 8);
+
+      if (baseAddress > 0xFFFFF && baseAddress < (0x100000 + imageInformation.imageSize))
+        baseAddress = imageInformation.imageStart + imageInformation.imageSize;
+
+      Object object = MAGIC.cast2Obj(baseAddress + MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize + 8);
+      object._r_type = (SClassDesc) MAGIC.clssDesc("EmptyObject");
+      object._r_relocEntries = MAGIC.getInstRelocEntries("EmptyObject");
+      object._r_scalarSize = (int)(length - 20);
+
+      EmptyObject emptyObject = (EmptyObject) object;
+
+      // concat empty objects
+      if (firstEmptyObject == null)
+        firstEmptyObject = emptyObject;
+      else {
+        EmptyObject lastEmptyObject = firstEmptyObject;
+        do {
+          lastEmptyObject = lastEmptyObject._next_emptyObject;
+        } while (lastEmptyObject != null);
+        lastEmptyObject._next_emptyObject = emptyObject;
+      }
+    } while (continuationIndex != 0);
+  }
+
+  private static int requestMemoryFromEmptyObject(int requestedMemorySize) {
+    EmptyObject emptyObjectWithSufficientMemory = firstEmptyObject;
+    do {
+      // check if empty object has enough space
+      if (emptyObjectWithSufficientMemory._r_scalarSize >= requestedMemorySize)
+        break;
+
+      emptyObjectWithSufficientMemory = emptyObjectWithSufficientMemory._next_emptyObject;
+    } while (emptyObjectWithSufficientMemory != null);
+
+    // if no empty object has enough space, return -1
+    if (emptyObjectWithSufficientMemory == null)
+      return -1;
+
+    // make found empty object smaller and return start address for new object
+    MAGIC.assign(emptyObjectWithSufficientMemory._r_scalarSize, emptyObjectWithSufficientMemory._r_scalarSize - requestedMemorySize);
+    // return object base address + empty scalars + 1 address (scalarSize)
+    return MAGIC.cast2Ref(emptyObjectWithSufficientMemory) + emptyObjectWithSufficientMemory._r_scalarSize + 1;
+  }
   
   public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
-    if (startWritingAddress == 0)
-      startWritingAddress = ((ImageInformation) MAGIC.cast2Struct(MAGIC.imageBase)).imageSize + MAGIC.imageBase;
-
     // calculate memory requirement and object start address
     int memSize = scalarSize + relocEntries * MAGIC.ptrSize;
-    int objectStartAddress = startWritingAddress + memSize - scalarSize;
-
     // align memory to 4 bytes
     int filler = (4 - (memSize % 4)) % 4;
     memSize += filler;
+    int startWritingAddress = requestMemoryFromEmptyObject(memSize);
+    int objectStartAddress = startWritingAddress + memSize - scalarSize;
 
     // initialize memory with 0
     for (int i = 0; i < memSize; i += 4)
@@ -35,16 +93,6 @@ public class DynamicRuntime {
 
     previousObject = object;
 
-    // Store new writing address (placed after last object alignment)
-    startWritingAddress += memSize;
-
-
-    //TODO calculate memory requirements
-    //TODO allocate requested memory
-    //TODO clear allocated memory
-    //TODO calculate object address inside allocated memory
-    //TODO fill kernel fields of object
-    //TODO return object instead of null
     return object;
   }
   

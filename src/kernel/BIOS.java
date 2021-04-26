@@ -208,14 +208,20 @@ public class BIOS {
     rint(0x10);
   }
 
-  @SJC.Inline
-  public static MemoryMap getSystemMemoryMap(int continuationIndex) {
+  public static void systemMemoryMap(int continuationIndex) {
     regs.EAX = 0x0000E820;
     regs.EDX = 0x534D4150;
     regs.EBX = continuationIndex;
     regs.ECX = 20;
     regs.EDI = GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START;
+    // call BIOS interrupt
     rint(0x15);
+  }
+
+  @SJC.Inline
+  public static MemoryMap getSystemMemoryMap(int continuationIndex) {
+    systemMemoryMap(continuationIndex);
+
     MemoryMap map = new MemoryMap(
             MAGIC.rMem64(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START),
             MAGIC.rMem64(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START + 8),

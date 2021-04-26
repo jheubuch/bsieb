@@ -5,11 +5,14 @@ import kernel.io.*;
 import kernel.memory.map.MemoryMap;
 import kernel.pci.PCI;
 import kernel.pci.PCIDevice;
+import rte.DynamicRuntime;
+import test.Dog;
 
 public class Kernel {
 
     public static void main() {
         Interrupt.initIdt();
+        DynamicRuntime.initializeEmptyObjects();
 
         BIOS.switchToGraphicMode();
         drawRainbowFlag();
@@ -17,10 +20,15 @@ public class Kernel {
         BIOS.switchToTextMode();
 
         Output.initScreen();
-        Output.println("Memory map:");
-        getSystemMemoryMap();
         Output.println("PCI Bus scan:");
         scanPCIBus();
+        Dog bello = new Dog("Bello");
+        Dog waldo = new Dog("Waldo");
+        bello.setPuppy(waldo);
+        Output.print(bello.getName());
+        Output.print(" has ");
+        Output.print(bello.getPuppy().getName());
+        Output.println(" as puppy!");
         Input.printKeyStrokes();
     }
 
