@@ -27,10 +27,11 @@ public class DynamicRuntime {
       if (baseAddress > 0xFFFFF && baseAddress < (0x100000 + imageInformation.imageSize))
         baseAddress = imageInformation.imageStart + imageInformation.imageSize;
 
-      Object object = MAGIC.cast2Obj(baseAddress + MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize + 8);
+      Object object = MAGIC.cast2Obj(baseAddress + ((MAGIC.getInstRelocEntries("EmptyObject") + 2) * MAGIC.ptrSize));
       object._r_type = (SClassDesc) MAGIC.clssDesc("EmptyObject");
       object._r_relocEntries = MAGIC.getInstRelocEntries("EmptyObject");
-      object._r_scalarSize = (int)(length - 20);
+      object._r_scalarSize = (int)(length - 8 - (2 * MAGIC.ptrSize));
+      object._r_next = null;
 
       EmptyObject emptyObject = (EmptyObject) object;
 
@@ -39,10 +40,9 @@ public class DynamicRuntime {
         firstEmptyObject = emptyObject;
       else {
         EmptyObject lastEmptyObject = firstEmptyObject;
-        do {
-          lastEmptyObject = lastEmptyObject._next_emptyObject;
-        } while (lastEmptyObject != null);
-        lastEmptyObject._next_emptyObject = emptyObject;
+        while (lastEmptyObject._r_next != null)
+          lastEmptyObject = (EmptyObject) lastEmptyObject._r_next;
+        lastEmptyObject._r_next = emptyObject;
       }
     } while (continuationIndex != 0);
   }
@@ -54,7 +54,7 @@ public class DynamicRuntime {
       if (emptyObjectWithSufficientMemory._r_scalarSize >= requestedMemorySize)
         break;
 
-      emptyObjectWithSufficientMemory = emptyObjectWithSufficientMemory._next_emptyObject;
+      emptyObjectWithSufficientMemory = (EmptyObject) emptyObjectWithSufficientMemory._r_next;
     } while (emptyObjectWithSufficientMemory != null);
 
     // if no empty object has enough space, return -1
@@ -74,6 +74,9 @@ public class DynamicRuntime {
     int filler = (4 - (memSize % 4)) % 4;
     memSize += filler;
     int startWritingAddress = requestMemoryFromEmptyObject(memSize);
+    // Break system when no memory is available
+    if (startWritingAddress == -1)
+      MAGIC.inline(0xCC);
     int objectStartAddress = startWritingAddress + memSize - scalarSize;
 
     // initialize memory with 0
