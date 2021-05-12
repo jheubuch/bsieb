@@ -2,6 +2,7 @@ package rte;
 
 import kernel.BIOS;
 import kernel.GlobalAddresses;
+import kernel.io.Output;
 
 public class DynamicRuntime {
 
@@ -24,13 +25,16 @@ public class DynamicRuntime {
       int baseAddress = (int)MAGIC.rMem64(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START);
       long length = MAGIC.rMem64(GlobalAddresses.SYSTEM_MEMORY_MAP_BUFFER_START + 8);
 
-      if (baseAddress > 0xFFFFF && baseAddress < (0x100000 + imageInformation.imageSize))
-        baseAddress = imageInformation.imageStart + imageInformation.imageSize;
+      if (baseAddress < imageInformation.imageStart)
+        continue;
+
+      // if (baseAddress > 0xFFFFF && baseAddress < (0x100000 + imageInformation.imageSize))
+      //   baseAddress = imageInformation.imageStart + imageInformation.imageSize;
 
       Object object = MAGIC.cast2Obj(baseAddress + ((MAGIC.getInstRelocEntries("EmptyObject") + 2) * MAGIC.ptrSize));
       object._r_type = (SClassDesc) MAGIC.clssDesc("EmptyObject");
       object._r_relocEntries = MAGIC.getInstRelocEntries("EmptyObject");
-      object._r_scalarSize = (int)(length - 8 - (2 * MAGIC.ptrSize));
+      object._r_scalarSize = (int)(length - 8 - ((MAGIC.getInstRelocEntries("EmptyObject") + 2) * MAGIC.ptrSize));
       object._r_next = null;
 
       EmptyObject emptyObject = (EmptyObject) object;
@@ -47,14 +51,81 @@ public class DynamicRuntime {
     } while (continuationIndex != 0);
   }
 
+  public static int getEmptyObjectCount() {
+    if (firstEmptyObject == null)
+      return 0;
+
+    int count = 1;
+    Object iteratorObject = firstEmptyObject;
+    Output.println();
+    Output.printHex(getLowerAddress(iteratorObject));
+    Output.print(' ');
+    Output.printHex(getUpperAddress(iteratorObject));
+    Output.println();
+    while (iteratorObject._r_next != null) {
+      count++;
+      iteratorObject = iteratorObject._r_next;
+      Output.printHex(getLowerAddress(iteratorObject));
+      Output.print(' ');
+      Output.printHex(getUpperAddress(iteratorObject));
+      Output.println();
+    }
+
+    return count;
+  }
+
+  static int deletedObjectCount = 0;
+  public static EmptyObject deleteObject(Object o) {
+    deletedObjectCount++;
+    int objectBaseAddress = MAGIC.cast2Ref(o);
+    int relocEntryBytes = o._r_relocEntries * MAGIC.ptrSize;
+    int emptyObjectBaseAddress = objectBaseAddress - relocEntryBytes;
+    int emptyObjectScalarSize = o._r_scalarSize + relocEntryBytes - (MAGIC.getInstRelocEntries("Object") * MAGIC.ptrSize);
+    Object object = MAGIC.cast2Obj(emptyObjectBaseAddress);
+    object._r_relocEntries = MAGIC.getInstRelocEntries("EmptyObject");
+    object._r_type = (SClassDesc) MAGIC.clssDesc("EmptyObject");
+    object._r_next = null;
+    object._r_scalarSize = emptyObjectScalarSize;
+
+    EmptyObject emptyObject = (EmptyObject) object;
+
+    // check if empty objects address is smaller than first empty object in list
+    if (getUpperAddress(emptyObject) < getLowerAddress(firstEmptyObject)) {
+      emptyObject._r_next = firstEmptyObject;
+      firstEmptyObject = emptyObject;
+    } else {
+      // put empty object into list
+      Object iteratorObject = firstEmptyObject;
+      while (iteratorObject._r_next != null) {
+        // check if empty object is between actual and following object
+        if (getLowerAddress(emptyObject) > getUpperAddress(iteratorObject) && getUpperAddress(emptyObject) < getLowerAddress(iteratorObject._r_next)) {
+          emptyObject._r_next = iteratorObject._r_next;
+          break;
+        }
+        iteratorObject = iteratorObject._r_next;
+      }
+      iteratorObject._r_next = emptyObject;
+    }
+
+    return emptyObject;
+  }
+
+  private static int getLowerAddress(Object o) {
+    return MAGIC.cast2Ref(o) - ((o._r_relocEntries + 2) * MAGIC.ptrSize);
+  }
+
+  private static int getUpperAddress(Object o) {
+    return MAGIC.cast2Ref(o) + o._r_scalarSize + 8;
+  }
+
   private static int requestMemoryFromEmptyObject(int requestedMemorySize) {
-    EmptyObject emptyObjectWithSufficientMemory = firstEmptyObject;
+    Object emptyObjectWithSufficientMemory = firstEmptyObject;
     do {
       // check if empty object has enough space
       if (emptyObjectWithSufficientMemory._r_scalarSize >= requestedMemorySize)
         break;
 
-      emptyObjectWithSufficientMemory = (EmptyObject) emptyObjectWithSufficientMemory._r_next;
+      emptyObjectWithSufficientMemory = emptyObjectWithSufficientMemory._r_next;
     } while (emptyObjectWithSufficientMemory != null);
 
     // if no empty object has enough space, return -1
@@ -64,7 +135,7 @@ public class DynamicRuntime {
     // make found empty object smaller and return start address for new object
     MAGIC.assign(emptyObjectWithSufficientMemory._r_scalarSize, emptyObjectWithSufficientMemory._r_scalarSize - requestedMemorySize);
     // return object base address + empty scalars + 1 address (scalarSize)
-    return MAGIC.cast2Ref(emptyObjectWithSufficientMemory) + emptyObjectWithSufficientMemory._r_scalarSize + 1;
+    return MAGIC.cast2Ref(emptyObjectWithSufficientMemory) + emptyObjectWithSufficientMemory._r_scalarSize;
   }
   
   public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
@@ -77,7 +148,7 @@ public class DynamicRuntime {
     // Break system when no memory is available
     if (startWritingAddress == -1)
       MAGIC.inline(0xCC);
-    int objectStartAddress = startWritingAddress + memSize - scalarSize;
+    int objectStartAddress = startWritingAddress + (relocEntries * MAGIC.ptrSize);
 
     // initialize memory with 0
     for (int i = 0; i < memSize; i += 4)
@@ -88,7 +159,7 @@ public class DynamicRuntime {
     // fill object kernel fields
     object._r_type = type;
     object._r_relocEntries = relocEntries;
-    object._r_scalarSize = scalarSize;
+    object._r_scalarSize = scalarSize + filler;
 
     // Connect to previous object --> set next of previous entry to reloc of current
     if (previousObject != null)

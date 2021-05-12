@@ -20,8 +20,8 @@ public class Kernel {
         BIOS.switchToTextMode();
 
         Output.initScreen();
-        Output.println("PCI Bus scan:");
-        scanPCIBus();
+        Output.print("Empty objects: ");
+        Output.println(DynamicRuntime.getEmptyObjectCount());
         Dog bello = new Dog("Bello");
         Dog waldo = new Dog("Waldo");
         bello.setPuppy(waldo);
@@ -29,6 +29,12 @@ public class Kernel {
         Output.print(" has ");
         Output.print(bello.getPuppy().getName());
         Output.println(" as puppy!");
+        DynamicRuntime.deleteObject(waldo);
+        Output.print("Empty objects: ");
+        Output.println(DynamicRuntime.getEmptyObjectCount());
+        DynamicRuntime.deleteObject(bello);
+        Output.print("Empty objects: ");
+        Output.println(DynamicRuntime.getEmptyObjectCount());
         Input.printKeyStrokes();
     }
 
